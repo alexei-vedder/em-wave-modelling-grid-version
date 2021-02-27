@@ -1,0 +1,15 @@
+.plot-wrapper {
+	display: flex;
+	flex-direction: column;
+}
+
+.plot {
+	width: 600px;
+	height: 370px;
+	transition-duration: @transition-duration;
+	background: @plot-color;
+
+	&:hover {
+		box-shadow: 0 0 17px 2px @color-2;
+	}
+}

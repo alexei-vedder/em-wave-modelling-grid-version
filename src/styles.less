@@ -1,1 +1,89 @@
-/* You can add global styles to this file, and also import other style files */
+// COLORS
+
+@color-1: #F0EFFF;
+@color-2: lightsteelblue;
+@init-form-color: RGBA(215, 210, 255, 0.7);
+@main-text-color: darkslateblue;
+@plot-color: RGBA(215, 210, 255, 0.2);
+@error-color: RGBA(255, 82, 80, 0.4);
+@error-text-color: RGB(255, 0, 57);
+@transition-duration: 0.3s;
+
+/** RESETTING DEFAULT STYLES */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Roboto Slab', serif;
+    color: @main-text-color;
+}
+
+body {
+    background: @color-1;
+}
+
+/* arrows deletion */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    margin: 0;
+}
+
+button:focus {
+    outline: none;
+}
+
+/* reset of the license text on the graph */
+#box_licenseText {
+    display: none;
+}
+
+/** COMMON FORM */
+
+.label {
+    width: fit-content;
+    display: flex;
+    flex-direction: column;
+    font-size: large;
+}
+
+.input {
+    border-radius: 8px;
+    border: solid 3px @color-2;
+    background: @color-1;
+    padding-left: 8px;
+    transition-duration: @transition-duration;
+    width: 180px;
+    height: 33px;
+}
+
+.input-focus {
+    outline: none;
+    box-shadow: 0 0 2px 1px @color-2;
+    transform: scale(1.02);
+}
+
+.button {
+    background: @color-1;
+    cursor: pointer;
+    border-radius: 8px;
+    border: solid 3px @color-2;
+    transition-duration: @transition-duration;
+    height: 33px;
+}
+
+.button-hover {
+    outline: none;
+    background: @color-2;
+    color: @color-1;
+}
+
+/** COMPONENT STYLES */
+
+@import "styles/app.component.less";
+@import "styles/init-plot-data.component.less";
+@import "styles/number-input.component.less";
+@import "styles/plot.component.less";
