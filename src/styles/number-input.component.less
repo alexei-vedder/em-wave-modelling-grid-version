@@ -1,30 +1,33 @@
 .number-input {
-    .label;
-    padding: 7px 0 0 0;
+    .label();
+    padding: 20px 0 0 0;
     background: transparent;
     text-align: center;
 
     &__wrapper {
         display: flex;
+        margin-top: 7px;
     }
 
     &__increase-button,
     &__decrease-button {
-        .button;
-        width: 33px;
+        .button();
+        width: 40px;
+        height: 40px;
 
         &:hover {
-            .button-hover;
+            .button-hover();
         }
     }
 
     &__input {
-        .input;
+        .input();
         margin: 0 5px;
         font-size: medium;
+        height: 40px;
 
         &:focus {
-            .input-focus;
+            .input-focus();
         }
     }
 }

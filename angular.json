@@ -54,7 +54,9 @@
 						"styles": [
 							"src/styles.less"
 						],
-						"scripts": []
+						"scripts": [
+							"node_modules/plotly.js/dist/plotly.min.js"
+						]
 					},
 					"configurations": {
 						"production": {

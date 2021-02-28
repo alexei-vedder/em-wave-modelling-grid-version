@@ -45,7 +45,7 @@ export class InitPlotDataComponent {
     @Output()
     readonly modelChange: EventEmitter<PlotModel> = new EventEmitter<PlotModel>();
 
-    buildPlot(): void {
+    buildPlot() {
         this.modelChange.emit(this.model);
     }
 }

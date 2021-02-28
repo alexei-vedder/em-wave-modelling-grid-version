@@ -7,6 +7,9 @@ import {FormsModule} from "@angular/forms";
 import {InitPlotDataComponent} from "./init-plot-data.component";
 import {PlotComponent} from "./plot.component";
 
+import {PlotlyViaWindowModule} from 'angular-plotly.js';
+
+
 @NgModule({
     declarations: [
         AppComponent,
@@ -16,7 +19,8 @@ import {PlotComponent} from "./plot.component";
     ],
     imports: [
         BrowserModule,
-        FormsModule
+        FormsModule,
+        PlotlyViaWindowModule
     ],
     providers: [],
     bootstrap: [AppComponent]

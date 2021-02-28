@@ -1,10 +1,8 @@
 // COLORS
 
-@color-1: #F0EFFF;
+@color-1: white;
 @color-2: lightsteelblue;
-@init-form-color: RGBA(215, 210, 255, 0.7);
-@main-text-color: darkslateblue;
-@plot-color: RGBA(215, 210, 255, 0.2);
+@main-text-color: black;
 @error-color: RGBA(255, 82, 80, 0.4);
 @error-text-color: RGB(255, 0, 57);
 @transition-duration: 0.3s;
@@ -15,7 +13,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Roboto Slab', serif;
+    font-family: "Open Sans", verdana, arial, sans-serif;
     color: @main-text-color;
 }
 
@@ -47,10 +45,11 @@ button:focus {
     width: fit-content;
     display: flex;
     flex-direction: column;
-    font-size: large;
+    font-size: medium;
 }
 
 .input {
+    font-family: "Consolas", serif;
     border-radius: 8px;
     border: solid 3px @color-2;
     background: @color-1;
@@ -62,8 +61,8 @@ button:focus {
 
 .input-focus {
     outline: none;
-    box-shadow: 0 0 2px 1px @color-2;
-    transform: scale(1.02);
+    // box-shadow: 0 0 2px 1px @color-2;
+    transform: scale(1.03);
 }
 
 .button {
@@ -72,7 +71,7 @@ button:focus {
     border-radius: 8px;
     border: solid 3px @color-2;
     transition-duration: @transition-duration;
-    height: 33px;
+    height: 50px;
 }
 
 .button-hover {

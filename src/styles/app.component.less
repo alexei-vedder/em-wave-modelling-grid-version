@@ -4,28 +4,26 @@
 	.title {
 		text-align: center;
 		margin: 0 auto;
+		color: rgba(@main-text-color, 0.7);
 	}
 }
 
 .title {
 	font-family: 'Arial Black', sans-serif;
-	text-shadow: 0 0 6px rgba(@main-text-color, 0.6);
 	cursor: pointer;
 	width: fit-content;
 	position: relative;
-	// font-size: xx-large;
-	// font-weight: 900;
 }
 
 .title::after {
 	content: '';
 	width: 10%;
 	height: 4px;
-	background: rgba(@main-text-color, 0.9);
+	background: rgba(@main-text-color, 0.5);
 	position: absolute;
 	left: 0;
 	right: 0;
-	top: 40px;
+	top: 50px;
 	opacity: 0;
 	transition-duration: @transition-duration;
 }
