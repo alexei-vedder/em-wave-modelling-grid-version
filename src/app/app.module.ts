@@ -8,6 +8,7 @@ import {InitPlotDataComponent} from "./init-plot-data.component";
 import {PlotComponent} from "./plot.component";
 
 import {PlotlyViaWindowModule} from 'angular-plotly.js';
+import {EvaluationService} from "./evaluation.service";
 
 
 @NgModule({
@@ -22,7 +23,9 @@ import {PlotlyViaWindowModule} from 'angular-plotly.js';
         FormsModule,
         PlotlyViaWindowModule
     ],
-    providers: [],
+    providers: [
+        EvaluationService
+    ],
     bootstrap: [AppComponent]
 })
 export class AppModule {

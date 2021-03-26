@@ -1,98 +1,120 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {PlotModel} from "./plot-model";
+import {Component, Input} from '@angular/core';
+import {range, transpose} from 'mathjs';
+import {Grid} from "./evaluation.service";
 
-function tabulateRange(from: number, to: number, step: number): number[] {
-    if (to < from) {
-        throw new Error("param 'from' should be less than param 'to'");
-    }
-    const tabulation: number[] = [];
-    let xCurrent = from;
-    while (xCurrent <= to + step / 2) {
-        tabulation.push(xCurrent);
-        xCurrent += step;
-    }
-    return tabulation;
-}
-
-function createGrid(from: { x0, z0 }, to: { xn, zn }, hx = 0.1, hz = 0.1): number[][] {
-    const xRange = tabulateRange(from.x0, to.xn, hx);
-    const zRange = tabulateRange(from.z0, to.zn, hz);
-    const grid = [];
-    for (let zj of zRange) {
-        grid.push([]);
-        for (let xi of xRange) {
-            grid[grid.length - 1].push({z: zj, x: xi});
-        }
-    }
-    return grid;
-}
 
 @Component({
-    selector: 'plot',
-    template: `
-        <div class="plot-wrapper">
-            <plotly-plot class="plot"
-                         [data]="graph.data" 
-                         [layout]="graph.layout" 
-                         [config]="graph.config">
-            </plotly-plot>
-        </div>
-    `
+	selector: 'plot',
+	template: `
+		<div class="plot-wrapper">
+			<plotly-plot class="plot"
+						 [data]="data"
+						 [layout]="layout"
+						 [config]="config"
+						 [frames]="frames">
+			</plotly-plot>
+		</div>
+	`
 })
-export class PlotComponent implements OnInit {
+export class PlotComponent {
 
-    graph;
+	data;
+	layout;
+	frames;
+	config;
 
-    #model: PlotModel;
+	private _grid: Grid;
 
-    get model(): PlotModel {
-        return this.#model;
-    }
+	get grid(): Grid {
+		return this._grid;
+	}
 
-    @Input()
-    set model(value: PlotModel) {
-        if (value) {
-            this.#model = value;
-            this.buildPlot();
-        }
-    }
+	@Input()
+	set grid(value: Grid) {
+		if (value) {
+			this._grid = value;
+			this.buildPlot();
+		}
+	}
 
-    ngOnInit() {
-        /* TODO remove */ this.buildPlot();
-        console.log(createGrid({x0: 0, z0: 0}, {xn: 5, zn: 5}, .5, .5));
-    }
+	buildPlot() {
 
-    buildPlot() {
-        this.graph = {
-            data: [{
-                x: [0, 1, 2, 3, 4],
-                y: [0, 2, 4, 8, 16],
-                mode: 'lines',
-                type: 'scatter',
-                line: {
-                    color: "#55a919"
-                }
-            }],
-            layout: {
-                xaxis: {
-                    title: {
-                        text: "z"
-                    },
-                    range: [0, 4]
-                },
-                yaxis: {
-                    title: {
-                        text: "(f(z))"
-                    },
-                    range: [0, 20]
-                },
-                title: {
-                    text: "Test Plot"
-                }
-            },
-            config: {
-                scrollZoom: true
-            }
-        }
-    }
+		const tRangeIndexes = range(0, this.grid.tRange.length).toArray();
+		const transposedGridValues = transpose(this.grid.values);
+
+		console.warn(transposedGridValues)
+
+		// @ts-ignore
+		const timeSteps = this.generateSliderSteps(tRangeIndexes, this.grid.tRange);
+
+		// @ts-ignore
+		this.frames = this.generate2dFrames(tRangeIndexes, tk => transposedGridValues[tk]);
+
+		this.data = [{
+			x: this.grid.zRange,
+			y: transposedGridValues[0],
+			mode: 'lines',
+			type: 'scatter',
+			line: {
+				color: "#55a919"
+			}
+		}];
+
+		this.layout = {
+			xaxis: {
+				title: "z",
+				range: [0, 10]
+			},
+			yaxis: {
+				title: "(f(z, t))",
+				range: [-3, 3]
+			},
+			title: "",
+			sliders: [{
+				currentvalue: {
+					xanchor: 'right',
+					prefix: "time = "
+				},
+				active: 0,
+				steps: timeSteps
+			}],
+		};
+
+		this.config = {
+			scrollZoom: true
+		}
+
+	}
+
+	/**
+	 * @param args: an array of the variable's tabulated range which needs to be manipulated via a slider
+	 * @param func: a function which returns values of the given args.
+	 *    func example: const wrapperFunc = alpha => return this.x.map(xk => func(xk, alpha))
+	 */
+	private generate2dFrames(args: number[], func: (arg: number) => number[]): any[] {
+		return args.map(arg => {
+			return {
+				name: arg.toString(),
+				data: [{
+					y: func(arg)
+				}]
+			}
+		});
+	}
+
+	/**
+	 * @param args: an array of a tabulated range of the variable which is needed to be manipulated via a slider
+	 * (args had better be an array of indexes like [0, 1, 2, 3], and corresponding values better be put in labels)
+	 * @param labels
+	 */
+	private generateSliderSteps(args: number[], labels ?: (string | number)[]): any[] {
+		labels = labels ?? args;
+		return args.map((arg, index) => {
+			return {
+				label: labels[index].toString(),
+				args: [[arg.toString()]],
+				method: "animate"
+			}
+		})
+	}
 }
