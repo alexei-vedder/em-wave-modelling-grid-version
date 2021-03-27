@@ -1,21 +1,21 @@
 export interface InitModel {
 
-    l: number;
+	l: number;
 
-    L: number;
+	L: number;
 
-    /** max time in seconds */
-    T: number;
+	/** max time in seconds */
+	T: number;
 
-    lambda: number;
+	lambda: number;
 
-    /** light speed in mkm */
-    c: number;
+	/** light speed in mkm */
+	c: number;
 
-    gridConfig: {
-        /** number of points by Z */
-        I: number;
-        /** number of points by T */
-        K: number;
-    };
+	gridConfig: {
+		/** number of points by Z */
+		I: number;
+		/** number of points by T */
+		K: number;
+	};
 }

@@ -3,8 +3,8 @@ import {InitModel} from "./init-model";
 
 
 @Component({
-    selector: 'init-plot-data',
-    template: `
+	selector: 'init-plot-data',
+	template: `
 		<div class="init-plot-data">
 			<div class="init-plot-data-wrapper">
 				<div class="init-plot-data-wrapper__triple-block">
@@ -38,12 +38,12 @@ import {InitModel} from "./init-model";
 export class InitPlotDataComponent {
 
 	@Input()
-    model: InitModel;
+	model: InitModel;
 
-    @Output()
-    readonly modelChange: EventEmitter<InitModel> = new EventEmitter<InitModel>();
+	@Output()
+	readonly modelChange: EventEmitter<InitModel> = new EventEmitter<InitModel>();
 
-    buildPlot() {
-        this.modelChange.emit(this.model);
-    }
+	buildPlot() {
+		this.modelChange.emit(this.model);
+	}
 }

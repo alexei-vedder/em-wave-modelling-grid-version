@@ -57,7 +57,7 @@ export class EvaluationService {
 			I,
 			K,
 			{
-				min: - l / 2,
+				min: -l / 2,
 				max: l / 2
 			}
 		);

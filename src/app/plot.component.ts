@@ -92,10 +92,35 @@ export class PlotComponent {
 					xanchor: "left",
 					prefix: "time = "
 				},
+				transition: {
+					duration: 100
+				},
 				active: 0,
 				yanchor: "bottom",
 				y: -0.7,
 				steps: timeSteps
+			}],
+			updatemenus: [{
+				y: -0.7,
+				yanchor: 'top',
+				xanchor: 'right',
+				showactive: false,
+				direction: 'left',
+				type: 'buttons',
+				pad: {t: -55, r: -580},
+				buttons: [{
+					method: 'animate',
+					args: [null, {
+						mode: 'immediate',
+						fromcurrent: true,
+						transition: {duration: 100},
+						frame: {
+							duration: 30 * 100 / this.grid.tRange.length,
+							redraw: false
+						}
+					}],
+					label: 'Play'
+				}]
 			}],
 		};
 

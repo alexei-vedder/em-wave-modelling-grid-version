@@ -12,21 +12,21 @@ import {EvaluationService} from "./evaluation.service";
 
 
 @NgModule({
-    declarations: [
-        AppComponent,
-        NumberInputComponent,
-        InitPlotDataComponent,
-        PlotComponent
-    ],
-    imports: [
-        BrowserModule,
-        FormsModule,
-        PlotlyViaWindowModule
-    ],
-    providers: [
-        EvaluationService
-    ],
-    bootstrap: [AppComponent]
+	declarations: [
+		AppComponent,
+		NumberInputComponent,
+		InitPlotDataComponent,
+		PlotComponent
+	],
+	imports: [
+		BrowserModule,
+		FormsModule,
+		PlotlyViaWindowModule
+	],
+	providers: [
+		EvaluationService
+	],
+	bootstrap: [AppComponent]
 })
 export class AppModule {
 }

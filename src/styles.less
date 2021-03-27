@@ -10,74 +10,74 @@
 /** RESETTING DEFAULT STYLES */
 
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: "Open Sans", verdana, arial, sans-serif;
-    color: @main-text-color;
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	font-family: "Open Sans", verdana, arial, sans-serif;
+	color: @main-text-color;
 }
 
 body {
-    background: @color-1;
+	background: @color-1;
 }
 
 /* arrows deletion */
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    margin: 0;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	margin: 0;
 }
 
 button:focus {
-    outline: none;
+	outline: none;
 }
 
 /* reset of the license text on the graph */
 #box_licenseText {
-    display: none;
+	display: none;
 }
 
 /** COMMON FORM */
 
 .label {
-    width: fit-content;
-    display: flex;
-    flex-direction: column;
-    font-size: medium;
+	width: fit-content;
+	display: flex;
+	flex-direction: column;
+	font-size: medium;
 }
 
 .input {
-    font-family: "Consolas", serif;
-    border-radius: 8px;
-    border: solid 3px @color-2;
-    background: @color-1;
-    padding-left: 8px;
-    transition-duration: @transition-duration;
-    width: 180px;
-    height: 33px;
+	font-family: "Consolas", serif;
+	border-radius: 8px;
+	border: solid 3px @color-2;
+	background: @color-1;
+	padding-left: 8px;
+	transition-duration: @transition-duration;
+	width: 180px;
+	height: 33px;
 }
 
 .input-focus {
-    outline: none;
-    // box-shadow: 0 0 2px 1px @color-2;
-    transform: scale(1.03);
+	outline: none;
+	// box-shadow: 0 0 2px 1px @color-2;
+	transform: scale(1.03);
 }
 
 .button {
-    background: @color-1;
-    cursor: pointer;
-    border-radius: 8px;
-    border: solid 3px @color-2;
-    transition-duration: @transition-duration;
-    height: 50px;
+	background: @color-1;
+	cursor: pointer;
+	border-radius: 8px;
+	border: solid 3px @color-2;
+	transition-duration: @transition-duration;
+	height: 50px;
 }
 
 .button-hover {
-    outline: none;
-    background: @color-2;
-    color: @color-1;
+	outline: none;
+	background: @color-2;
+	color: @color-1;
 }
 
 /** COMPONENT STYLES */
