@@ -8,22 +8,27 @@ export interface Grid {
 	tRange: number[];
 	hz: number;
 	ht: number;
+	valueConstraints: {
+		min: number;
+		max: number;
+	}
 }
 
 @Injectable()
 export class EvaluationService {
 
-	private static createGridTemplate(from: { z0, t0 }, to: { zn, tn }, I, K): Grid {
-		const zRange = EvaluationService.tabulateRange(from.z0, to.zn, I + 1);
-		const tRange = EvaluationService.tabulateRange(from.t0, to.tn, K + 1);
+	private static createGridTemplate(from: { z, t }, to: { z, t }, I, K, valueConstraints: { min, max }): Grid {
+		const zRange = EvaluationService.tabulateRange(from.z, to.z, I + 1);
+		const tRange = EvaluationService.tabulateRange(from.t, to.t, K + 1);
 		const values = new Array(zRange.length).fill(null)
-			.map(() => new Array(tRange.length).fill(null));
+			.map(() => new Array(tRange.length).fill(NaN));
 		return {
 			values,
 			zRange,
 			tRange,
-			hz: (to.zn - from.z0) / (I),
-			ht: (to.tn - from.t0) / (K)
+			hz: (to.z - from.z) / (I),
+			ht: (to.t - from.t) / (K),
+			valueConstraints
 		};
 	}
 
@@ -43,16 +48,22 @@ export class EvaluationService {
 
 	evaluate(model: InitModel): Grid {
 
+		const {c, lambda, l, L, T} = model,
+			{I, K} = model.gridConfig;
+
 		const grid = EvaluationService.createGridTemplate(
-			{z0: 0, t0: 0},
-			{zn: model.l, tn: model.T},
-			model.gridConfig.I,
-			model.gridConfig.K
+			{z: 0, t: 0},
+			{z: L, t: T},
+			I,
+			K,
+			{
+				min: - l / 2,
+				max: l / 2
+			}
 		);
 
-		const {c, lambda, l} = model,
-			{I, K} = model.gridConfig,
-			{ht, hz, values: u} = grid,
+		const {ht, hz, values: u} = grid,
+			{min: minValue, max: maxValue} = grid.valueConstraints,
 			omega = 2 * pi * (c / lambda),
 			greekPi = pi * c / l;
 
@@ -70,12 +81,28 @@ export class EvaluationService {
 			u[I][k] = 0;
 		}
 
+		const a = square(ht),
+			b = square(c / hz);
+
 		for (let k = 1; k <= K - 1; ++k) {
 			for (let i = 1; i <= I - 1; ++i) {
-				u[i][k + 1] = square(ht) *
+
+				/*u[i][k + 1] = square(ht) *
 					((square(c) / square(hz)) * (u[i + 1][k] - 2 * u[i][k] + u[i - 1][k]) -
 						greekPi * u[i][k]
-					) + (2 * u[i][k]) - u[i][k - 1];
+					) + (2 * u[i][k]) - u[i][k - 1];*/
+
+				const d1 = u[i + 1][k],
+					d2 = u[i][k],
+					d3 = u[i - 1][k],
+					d = d1 - 2 * d2 + d3,
+					e = greekPi * u[i][k],
+					g = (2 * u[i][k]) - u[i][k - 1],
+					h = b * d
+
+				const finalValue = a * (h - e) + g;
+
+				u[i][k + 1] = finalValue < minValue ? minValue : maxValue < finalValue ? maxValue : finalValue;
 			}
 		}
 

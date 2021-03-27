@@ -2,7 +2,6 @@ import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {InitModel} from "./init-model";
 
 
-
 @Component({
     selector: 'init-plot-data',
     template: `
@@ -16,7 +15,7 @@ import {InitModel} from "./init-model";
 								  [step]="1"
 								  [text]="'L (mkm)'"></number-input>
 					<number-input [value]="model.T" (valueChange)="model.T = $event"
-								  [step]="1e-15"
+								  [step]="1e-14"
 								  [text]="'T (s)'"></number-input>
 				</div>
 				<div class="init-plot-data-wrapper__triple-block">
@@ -24,14 +23,11 @@ import {InitModel} from "./init-model";
 								  [step]="1"
 								  [text]="'&lambda; (mkm)'"></number-input>
 					<number-input [value]="model.c" (valueChange)="model.c = $event"
-								  [step]="1e13"
+								  [step]="5e13"
 								  [text]="'c (mkm/s)'"></number-input>
 					<number-input [value]="model.gridConfig.I" (valueChange)="model.gridConfig.I = $event"
 								  [step]="10"
 								  [text]="'I (max index by Z)'"></number-input>
-					<number-input [value]="model.gridConfig.K" (valueChange)="model.gridConfig.K = $event"
-								  [step]="10"
-								  [text]="'K (max index by T)'"></number-input>
 				</div>
 			</div>
 

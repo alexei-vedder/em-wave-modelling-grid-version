@@ -4,7 +4,9 @@
 	"scripts": {
 		"ng": "ng",
 		"start": "ng serve --port=4455",
-		"build": "ng build"
+		"build": "ng build",
+		"deploy": "firebase deploy",
+		"buildDeploy": "npm run build && npm run deploy"
 	},
 	"private": true,
 	"dependencies": {

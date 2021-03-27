@@ -42,40 +42,59 @@ export class PlotComponent {
 		const tRangeIndexes = range(0, this.grid.tRange.length).toArray();
 		const transposedGridValues = transpose(this.grid.values);
 
-		console.warn(transposedGridValues)
-
 		// @ts-ignore
-		const timeSteps = this.generateSliderSteps(tRangeIndexes, this.grid.tRange);
+		const timeSteps = this.generateSliderSteps(tRangeIndexes, this.grid.tRange.map(value => value.toPrecision(2)));
 
 		// @ts-ignore
 		this.frames = this.generate2dFrames(tRangeIndexes, tk => transposedGridValues[tk]);
+
+		const borders = this.getPlotBorders();
 
 		this.data = [{
 			x: this.grid.zRange,
 			y: transposedGridValues[0],
 			mode: 'lines',
 			type: 'scatter',
+			name: "u(zi, tk)",
 			line: {
-				color: "#55a919"
+				color: "#32d3e2",
+				width: 3
+			}
+		}, {
+			x: [borders.left, borders.left, borders.right, borders.right, borders.left],
+			y: [borders.bottom, borders.top, borders.top, borders.bottom, borders.bottom],
+			mode: "lines",
+			name: "layer borders",
+			line: {
+				width: 2,
+				color: "rgba(91, 80, 238, 0.5)"
 			}
 		}];
 
 		this.layout = {
 			xaxis: {
-				title: "z",
-				range: [0, 10]
+				title: "z, mkm",
+				range: [
+					borders.left - 0.1 * (borders.right - borders.left),
+					borders.right + 0.1 * (borders.right - borders.left)
+				]
 			},
 			yaxis: {
-				title: "(f(z, t))",
-				range: [-3, 3]
+				title: "u(zi, tk)",
+				range: [
+					borders.bottom - 0.1 * (borders.top - borders.bottom),
+					borders.top + 0.1 * (borders.top - borders.bottom)
+				]
 			},
 			title: "",
 			sliders: [{
 				currentvalue: {
-					xanchor: 'right',
+					xanchor: "left",
 					prefix: "time = "
 				},
 				active: 0,
+				yanchor: "bottom",
+				y: -0.7,
 				steps: timeSteps
 			}],
 		};
@@ -84,6 +103,15 @@ export class PlotComponent {
 			scrollZoom: true
 		}
 
+	}
+
+	private getPlotBorders() {
+		return {
+			top: this.grid.valueConstraints.max,
+			right: this.grid.zRange[this.grid.zRange.length - 1],
+			bottom: this.grid.valueConstraints.min,
+			left: this.grid.zRange[0]
+		}
 	}
 
 	/**
@@ -112,7 +140,11 @@ export class PlotComponent {
 		return args.map((arg, index) => {
 			return {
 				label: labels[index].toString(),
-				args: [[arg.toString()]],
+				args: [[arg.toString()], {
+					transition: {
+						duration: 150
+					}
+				}],
 				method: "animate"
 			}
 		})

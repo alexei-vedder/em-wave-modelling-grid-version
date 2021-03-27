@@ -1,18 +1,27 @@
 import {Component} from '@angular/core';
 import {InitModel} from "./init-model";
 import {EvaluationService, Grid} from "./evaluation.service";
+import {ceil} from "mathjs";
 
-export const INITIAL_MODEL: InitModel = {
-	l: 10,
-	L: 4,
-	c: 299.792458e12,
-	lambda: 2,
-	T: 6.67e-15,
-	gridConfig: {
-		I: 12,
-		K: 11
+const getInitialModel = () => {
+	const
+		l = 10,
+		L = 4,
+		lambda = 2,
+		c = 1e14; // 299.792458e12,
+
+	return {
+		l,
+		L,
+		c,
+		lambda,
+		T: lambda / c, // 1.76e-14,
+		gridConfig: {
+			I: 100,
+			K: 100
+		}
 	}
-}
+};
 
 @Component({
 	selector: 'app-root',
@@ -36,7 +45,7 @@ export class AppComponent {
 	grid: Grid;
 
 	constructor(private evalService: EvaluationService) {
-		this.model = INITIAL_MODEL;
+		this.model = getInitialModel();
 	}
 
 	private _model: InitModel;
@@ -47,8 +56,15 @@ export class AppComponent {
 
 	set model(model: InitModel) {
 		this._model = model;
+		this.resolveTimeDensity(model);
 		this.grid = this.evalService.evaluate(model);
 	}
 
+	/**
+	 * based on assumption that TcI <= KL
+	 */
+	resolveTimeDensity(model: InitModel): void {
+		model.gridConfig.K = ceil(model.T * model.c * model.gridConfig.I / model.L);
+	}
 
 }
