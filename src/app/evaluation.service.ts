@@ -1,18 +1,7 @@
 import {Injectable} from '@angular/core';
-import {pi, sin, square} from 'mathjs';
-import {InitModel} from "./init-model";
-
-export interface Grid {
-	values: number[][];
-	zRange: number[];
-	tRange: number[];
-	hz: number;
-	ht: number;
-	valueConstraints: {
-		min: number;
-		max: number;
-	}
-}
+import {pi, sin, square, transpose} from 'mathjs';
+import {InitModel} from "./init-model.model";
+import {Grid} from "./grid.model";
 
 @Injectable()
 export class EvaluationService {
@@ -28,7 +17,8 @@ export class EvaluationService {
 			tRange,
 			hz: (to.z - from.z) / (I),
 			ht: (to.t - from.t) / (K),
-			valueConstraints
+			valueConstraints,
+			by: "t"
 		};
 	}
 
@@ -87,23 +77,23 @@ export class EvaluationService {
 		for (let k = 1; k <= K - 1; ++k) {
 			for (let i = 1; i <= I - 1; ++i) {
 
-				/*u[i][k + 1] = square(ht) *
-					((square(c) / square(hz)) * (u[i + 1][k] - 2 * u[i][k] + u[i - 1][k]) -
-						greekPi * u[i][k]
-					) + (2 * u[i][k]) - u[i][k - 1];*/
-
 				const d1 = u[i + 1][k],
 					d2 = u[i][k],
 					d3 = u[i - 1][k],
 					d = d1 - 2 * d2 + d3,
 					e = greekPi * u[i][k],
 					g = (2 * u[i][k]) - u[i][k - 1],
-					h = b * d
+					h = b * d;
 
 				const finalValue = a * (h - e) + g;
 
 				u[i][k + 1] = finalValue < minValue ? minValue : maxValue < finalValue ? maxValue : finalValue;
 			}
+		}
+
+		if (model.gridConfig.by === "z") {
+			grid.values = transpose(grid.values);
+			grid.by = "z";
 		}
 
 		return grid;

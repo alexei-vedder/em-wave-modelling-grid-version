@@ -12,10 +12,14 @@ export interface InitModel {
 	/** light speed in mkm */
 	c: number;
 
+	mode: "frames" | "slider";
+
 	gridConfig: {
 		/** number of points by Z */
 		I: number;
 		/** number of points by T */
 		K: number;
+
+		by: "z" | "t";
 	};
 }

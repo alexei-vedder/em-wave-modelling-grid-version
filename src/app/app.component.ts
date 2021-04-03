@@ -1,9 +1,10 @@
 import {Component} from '@angular/core';
-import {InitModel} from "./init-model";
-import {EvaluationService, Grid} from "./evaluation.service";
+import {InitModel} from "./init-model.model";
+import {EvaluationService} from "./evaluation.service";
 import {ceil} from "mathjs";
+import {Grid} from "./grid.model";
 
-const getInitialModel = () => {
+const getInitialModel: () => InitModel = () => {
 	const
 		l = 10,
 		L = 4,
@@ -15,10 +16,13 @@ const getInitialModel = () => {
 		L,
 		c,
 		lambda,
-		T: lambda / c, // 1.76e-14,
+		T: lambda / c, // 1.76e-14
+
+		mode: "slider",
 		gridConfig: {
 			I: 100,
-			K: 100
+			K: 100,
+			by: "z"
 		}
 	}
 };
@@ -35,7 +39,7 @@ const getInitialModel = () => {
 			<init-plot-data [(model)]="model">
 			</init-plot-data>
 
-			<plot [grid]="grid">
+			<plot [grid]="grid" [mode]="model.mode">
 			</plot>
 		</main>
 	`

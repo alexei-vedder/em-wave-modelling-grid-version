@@ -1,6 +1,6 @@
 import {Component, Input} from '@angular/core';
-import {range, transpose} from 'mathjs';
-import {Grid} from "./evaluation.service";
+import {floor, range} from 'mathjs';
+import {Grid} from "./grid.model";
 
 
 @Component({
@@ -23,6 +23,9 @@ export class PlotComponent {
 	frames;
 	config;
 
+	@Input()
+	mode: "slider" | "frames" = "slider";
+
 	private _grid: Grid;
 
 	get grid(): Grid {
@@ -39,20 +42,25 @@ export class PlotComponent {
 
 	buildPlot() {
 
-		const tRangeIndexes = range(0, this.grid.tRange.length).toArray();
-		const transposedGridValues = transpose(this.grid.values);
-
-		// @ts-ignore
-		const timeSteps = this.generateSliderSteps(tRangeIndexes, this.grid.tRange.map(value => value.toPrecision(2)));
-
-		// @ts-ignore
-		this.frames = this.generate2dFrames(tRangeIndexes, tk => transposedGridValues[tk]);
-
 		const borders = this.getPlotBorders();
 
-		this.data = [{
+		this.buildPlotData(borders);
+
+		this.buildLayout(borders);
+
+		this.buildFrames();
+
+		this.config = {
+			scrollZoom: true
+		}
+
+	}
+
+	private buildPlotData(borders) {
+
+		const data = [{
 			x: this.grid.zRange,
-			y: transposedGridValues[0],
+			y: this.grid.values[0],
 			mode: 'lines',
 			type: 'scatter',
 			name: "u(zi, tk)",
@@ -60,20 +68,66 @@ export class PlotComponent {
 				color: "#32d3e2",
 				width: 3
 			}
-		}, {
-			x: [borders.left, borders.left, borders.right, borders.right, borders.left],
-			y: [borders.bottom, borders.top, borders.top, borders.bottom, borders.bottom],
-			mode: "lines",
-			name: "layer borders",
-			line: {
-				width: 2,
-				color: "rgba(91, 80, 238, 0.5)"
-			}
 		}];
+
+		if (this.mode === "frames") {
+			const framesTotal = 5;
+			// TODO random color for each curve
+			for (let i = 1; i < framesTotal; ++i) {
+				const frame = {...data[0]};
+				const valueIndex = floor(i * this.grid.values.length / (framesTotal - 1)) - 1;
+				frame.y = this.grid.values[valueIndex];
+				if (this.grid.by === "z") {
+					frame.name += ` (t = ${this.grid.tRange[valueIndex]})`
+				} else if (this.grid.by === "t") {
+					frame.name += ` (z = ${this.grid.zRange[valueIndex]})`
+				}
+				data.push(frame);
+			}
+		}
+
+		if (this.grid.by === "z") {
+			// @ts-ignore
+			data.push({
+				x: [borders.left, borders.left, borders.right, borders.right, borders.left],
+				y: [borders.bottom, borders.top, borders.top, borders.bottom, borders.bottom],
+				mode: "lines",
+				name: "layer borders",
+				line: {
+					width: 2,
+					color: "rgba(91, 80, 238, 0.5)"
+				}
+			})
+		}
+
+		this.data = data;
+	}
+
+	private buildLayout(borders) {
+
+		let steps, rangeIndexes, sliderPrefix, frameDuration;
+
+		if (this.grid.by === "z") {
+			sliderPrefix = "t";
+			frameDuration = 30 * 100 / this.grid.tRange.length;
+			rangeIndexes = range(0, this.grid.tRange.length).toArray();
+			steps = this.generateSliderSteps(
+				rangeIndexes,
+				this.grid.tRange.map(value => value.toPrecision(2))
+			);
+		} else if (this.grid.by === "t") {
+			sliderPrefix = "z";
+			frameDuration = 30 * 100 / this.grid.zRange.length;
+			rangeIndexes = range(0, this.grid.zRange.length).toArray();
+			steps = this.generateSliderSteps(
+				rangeIndexes,
+				this.grid.zRange.map(value => value.toPrecision(2))
+			)
+		}
 
 		this.layout = {
 			xaxis: {
-				title: "z, mkm",
+				title: `${this.grid.by}`,
 				range: [
 					borders.left - 0.1 * (borders.right - borders.left),
 					borders.right + 0.1 * (borders.right - borders.left)
@@ -87,47 +141,62 @@ export class PlotComponent {
 				]
 			},
 			title: "",
-			sliders: [{
-				currentvalue: {
-					xanchor: "left",
-					prefix: "time = "
-				},
-				transition: {
-					duration: 100
-				},
-				active: 0,
-				yanchor: "bottom",
-				y: -0.7,
-				steps: timeSteps
-			}],
-			updatemenus: [{
-				y: -0.7,
-				yanchor: 'top',
-				xanchor: 'right',
-				showactive: false,
-				direction: 'left',
-				type: 'buttons',
-				pad: {t: -55, r: -580},
-				buttons: [{
-					method: 'animate',
-					args: [null, {
-						mode: 'immediate',
-						fromcurrent: true,
-						transition: {duration: 100},
-						frame: {
-							duration: 30 * 100 / this.grid.tRange.length,
-							redraw: false
-						}
-					}],
-					label: 'Play'
-				}]
-			}],
 		};
 
-		this.config = {
-			scrollZoom: true
+		if (this.mode === "slider") {
+			Object.assign(this.layout, {
+				sliders: [{
+					currentvalue: {
+						xanchor: "left",
+						prefix: `${sliderPrefix} = `
+					},
+					transition: {
+						duration: 100
+					},
+					active: 0,
+					yanchor: "bottom",
+					y: -0.7,
+					steps
+				}],
+				updatemenus: [{
+					y: -0.7,
+					yanchor: 'top',
+					xanchor: 'right',
+					showactive: false,
+					direction: 'left',
+					type: 'buttons',
+					pad: {t: -55, r: -580},
+					buttons: [{
+						method: 'animate',
+						args: [null, {
+							mode: 'immediate',
+							fromcurrent: true,
+							transition: {duration: 100},
+							frame: {
+								duration: frameDuration,
+								redraw: false
+							}
+						}],
+						label: 'Play'
+					}]
+				}]
+			})
+		}
+	}
+
+	private buildFrames() {
+
+		let rangeIndexes;
+
+		if (this.grid.by === "z") {
+			rangeIndexes = range(0, this.grid.tRange.length).toArray();
+		} else if (this.grid.by === "t") {
+			rangeIndexes = range(0, this.grid.zRange.length).toArray();
 		}
 
+		if (this.mode === "slider") {
+			this.frames = this.generate2dFrames(rangeIndexes, a => this.grid.values[a]);
+		}
 	}
 
 	private getPlotBorders() {

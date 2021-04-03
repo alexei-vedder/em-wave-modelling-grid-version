@@ -9,6 +9,7 @@ import {PlotComponent} from "./plot.component";
 
 import {PlotlyViaWindowModule} from 'angular-plotly.js';
 import {EvaluationService} from "./evaluation.service";
+import {RadioGroupFieldComponent} from './radio-group-field.component';
 
 
 @NgModule({
@@ -16,7 +17,8 @@ import {EvaluationService} from "./evaluation.service";
 		AppComponent,
 		NumberInputComponent,
 		InitPlotDataComponent,
-		PlotComponent
+		PlotComponent,
+		RadioGroupFieldComponent,
 	],
 	imports: [
 		BrowserModule,
