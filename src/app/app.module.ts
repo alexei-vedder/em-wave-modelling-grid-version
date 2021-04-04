@@ -2,14 +2,15 @@ import {BrowserModule} from '@angular/platform-browser';
 import {NgModule} from '@angular/core';
 
 import {AppComponent} from './app.component';
-import {NumberInputComponent} from "./number-input.component";
+import {NumberInputComponent} from "./components/number-input.component";
 import {FormsModule} from "@angular/forms";
-import {InitPlotDataComponent} from "./init-plot-data.component";
-import {PlotComponent} from "./plot.component";
+import {InitPlotDataComponent} from "./components/init-plot-data.component";
+import {PlotComponent} from "./components/plot.component";
 
 import {PlotlyViaWindowModule} from 'angular-plotly.js';
-import {EvaluationService} from "./evaluation.service";
-import {RadioGroupFieldComponent} from './radio-group-field.component';
+import {SchemeEvaluationService} from "./services/scheme-evaluation.service";
+import {RadioGroupFieldComponent} from './components/radio-group-field.component';
+import {AnalyticalEvaluationService} from "./services/analytical-evaluation.service";
 
 
 @NgModule({
@@ -26,7 +27,8 @@ import {RadioGroupFieldComponent} from './radio-group-field.component';
 		PlotlyViaWindowModule
 	],
 	providers: [
-		EvaluationService
+		SchemeEvaluationService,
+		AnalyticalEvaluationService
 	],
 	bootstrap: [AppComponent]
 })

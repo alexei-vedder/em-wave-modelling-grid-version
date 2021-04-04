@@ -1,5 +1,6 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
-import {InitModel} from "./init-model.model";
+import {InitModel} from "../models/init-model.model";
+import {ceil} from "mathjs";
 
 
 @Component({
@@ -19,7 +20,7 @@ import {InitModel} from "./init-model.model";
 								  [text]="'T (s)'"></number-input>
 					<radio-group-field [items]="plotVariableOptions"
 									   [text]="'Plot variable'"
-									   [value]="plotVariableOptions[0]" (valueChange)="model.gridConfig.by = $event.id"></radio-group-field>
+									   [value]="plotVariableOptions[0]" (valueChange)="model.by = $event.id"></radio-group-field>
 				</div>
 				<div class="init-plot-data-wrapper__triple-block">
 					<number-input [value]="model.lambda" (valueChange)="model.lambda = $event"
@@ -28,7 +29,7 @@ import {InitModel} from "./init-model.model";
 					<number-input [value]="model.c" (valueChange)="model.c = $event"
 								  [step]="5e13"
 								  [text]="'c (mkm/s)'"></number-input>
-					<number-input [value]="model.gridConfig.I" (valueChange)="model.gridConfig.I = $event"
+					<number-input [value]="model.I" (valueChange)="model.I = $event"
 								  [step]="10"
 								  [text]="'I (max index by Z)'"></number-input>
 					<radio-group-field [items]="plotModeOptions"
@@ -79,7 +80,7 @@ export class InitPlotDataComponent {
 	set model(model: InitModel) {
 		this._model = model;
 		this.plotVariableOptions.sort((o1, o2) => {
-			return o1.id === model.gridConfig.by ? -1 : o2.id === model.gridConfig.by ? 1 : 0;
+			return o1.id === model.by ? -1 : o2.id === model.by ? 1 : 0;
 		});
 		this.plotModeOptions.sort((o1, o2) => {
 			return o1.id === model.mode ? -1 : o2.id === model.mode ? 1 : 0;
@@ -87,6 +88,16 @@ export class InitPlotDataComponent {
 	}
 
 	buildPlot() {
+		this.resolveTimeDensity(this._model)
 		this.modelChange.emit(this._model);
 	}
+
+
+	/**
+	 * based on assumption that TcI <= KL
+	 */
+	private resolveTimeDensity(model: InitModel): void {
+		model.K = ceil(model.T * model.c * model.I / model.L);
+	}
+
 }

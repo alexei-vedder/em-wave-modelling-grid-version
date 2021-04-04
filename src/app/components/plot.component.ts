@@ -1,6 +1,6 @@
 import {Component, Input} from '@angular/core';
 import {floor, random, range, round} from 'mathjs';
-import {Grid} from "./grid.model";
+import {Grid} from "../models/grid.model";
 
 
 @Component({
@@ -26,21 +26,19 @@ export class PlotComponent {
 	@Input()
 	mode: "slider" | "frames" = "slider";
 
-	private _grid: Grid;
-
-	get grid(): Grid {
-		return this._grid;
-	}
+	private scheme: Grid;
+	private tabFn: Grid;
 
 	@Input()
-	set grid(value: Grid) {
+	set grids(value: { scheme: Grid, tabFn: Grid }) {
 		if (value) {
-			this._grid = value;
+			this.scheme = value.scheme;
+			this.tabFn = value.tabFn;
 			this.buildPlot();
 		}
 	}
 
-	buildPlot() {
+	private async buildPlot() {
 
 		const borders = this.getPlotBorders();
 
@@ -58,33 +56,52 @@ export class PlotComponent {
 
 	private buildPlotData(borders) {
 
+		const sliderBy = this.scheme.by === "z" ? "t" : "z";
+
 		const data = [{
-			x: this.grid.range[this.grid.by],
-			y: this.grid.values[0],
+			x: this.scheme.range[this.scheme.by],
+			y: this.scheme.values[0],
 			mode: 'lines',
 			type: 'scatter',
-			name: "u(zi, tk)",
+			name: `u(zi, tk)`,
 			line: {
 				color: "#32d3e2",
 				width: 3
 			}
 		}];
 
+		if (this.tabFn && this.mode === "slider") {
+			data.push({
+				x: this.tabFn.range[this.scheme.by],
+				y: this.tabFn.values[0],
+				mode: 'lines',
+				type: 'scatter',
+				name: `u(z, t)`,
+				line: {
+					color: "#325ee2",
+					width: 3
+				}
+			})
+		}
+
 		if (this.mode === "frames") {
-			const framesTotal = 5,
-				sliderBy = this.grid.by === "z" ? "t" : "z";
+			const framesTotal = 5
 
 			for (let i = 1; i < framesTotal; ++i) {
 				const frame = JSON.parse(JSON.stringify(data[0]));
-				const valueIndex = floor(i * this.grid.values.length / (framesTotal - 1)) - 1;
-				frame.y = this.grid.values[valueIndex];
+				const valueIndex = floor(i * this.scheme.values.length / (framesTotal - 1)) - 1;
+				frame.y = this.scheme.values[valueIndex];
 				frame.line.color = ""; // this.getRandomColor();
-				frame.name += ` (${sliderBy} = ${this.grid.range[sliderBy][valueIndex].toPrecision(2)})`
+				frame.name += ` (${sliderBy} = ${this.scheme.range[sliderBy][valueIndex].toPrecision(2)})`
 				data.push(frame);
 			}
+
+			data[0].name += ` (${sliderBy} = ${this.scheme.range[sliderBy][0].toPrecision(2)})`
 		}
 
-		if (this.grid.by === "z") {
+
+
+		if (this.scheme.by === "z") {
 			// @ts-ignore
 			data.push({
 				x: [borders.left, borders.left, borders.right, borders.right, borders.left],
@@ -103,18 +120,18 @@ export class PlotComponent {
 
 	private buildLayout(borders) {
 
-		const sliderBy = this.grid.by === "z" ? "t" : "z",
-			rangeIndexes = range(0, this.grid.range[sliderBy].length).toArray() as number[],
-			frameDuration = 30 * 100 / this.grid.range[sliderBy].length;
+		const sliderBy = this.scheme.by === "z" ? "t" : "z",
+			rangeIndexes = range(0, this.scheme.range[sliderBy].length).toArray() as number[],
+			frameDuration = 30 * 100 / this.scheme.range[sliderBy].length;
 
 		const steps = this.generateSliderSteps(
 			rangeIndexes,
-			this.grid.range[sliderBy].map(value => value.toPrecision(2))
+			this.scheme.range[sliderBy].map(value => value.toPrecision(2))
 		);
 
 		this.layout = {
 			xaxis: {
-				title: `${this.grid.by}`,
+				title: `${this.scheme.by}`,
 				range: [
 					borders.left - 0.1 * (borders.right - borders.left),
 					borders.right + 0.1 * (borders.right - borders.left)
@@ -175,20 +192,20 @@ export class PlotComponent {
 	}
 
 	private buildFrames() {
-		const rangeBy = this.grid.by === "z" ? "t" : "z";
-		const rangeIndexes = range(0, this.grid.range[rangeBy].length).toArray() as number[];
+		const rangeBy = this.scheme.by === "z" ? "t" : "z";
+		const rangeIndexes = range(0, this.scheme.range[rangeBy].length).toArray() as number[];
 
 		if (this.mode === "slider") {
-			this.frames = this.generate2dFrames(rangeIndexes, a => this.grid.values[a]);
+			this.frames = this.generate2dFrames(rangeIndexes, [a => this.scheme.values[a], b => this.tabFn.values[b]]);
 		}
 	}
 
 	private getPlotBorders() {
 		return {
-			top: this.grid.valueConstraints.max,
-			right: this.grid.range[this.grid.by][this.grid.range[this.grid.by].length - 1],
-			bottom: this.grid.valueConstraints.min,
-			left: this.grid.range[this.grid.by][0]
+			top: this.scheme.valueConstraints.max,
+			right: this.scheme.range[this.scheme.by][this.scheme.range[this.scheme.by].length - 1],
+			bottom: this.scheme.valueConstraints.min,
+			left: this.scheme.range[this.scheme.by][0]
 		}
 	}
 
@@ -199,16 +216,16 @@ export class PlotComponent {
 
 	/**
 	 * @param args: an array of the variable's tabulated range which needs to be manipulated via a slider
-	 * @param func: a function which returns values of the given args.
+	 * @param funcs
 	 *    func example: const wrapperFunc = alpha => return this.x.map(xk => func(xk, alpha))
 	 */
-	private generate2dFrames(args: number[], func: (arg: number) => number[]): any[] {
+	private generate2dFrames(args: number[], funcs: ((arg: number) => number[])[]): any[] {
 		return args.map(arg => {
 			return {
 				name: arg.toString(),
-				data: [{
+				data: funcs.map(func => ({
 					y: func(arg)
-				}]
+				}))
 			}
 		});
 	}

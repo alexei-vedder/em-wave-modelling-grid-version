@@ -1,15 +1,20 @@
 import {Component} from '@angular/core';
-import {InitModel} from "./init-model.model";
-import {EvaluationService} from "./evaluation.service";
-import {ceil} from "mathjs";
-import {Grid} from "./grid.model";
+import {InitModel} from "./models/init-model.model";
+import {SchemeEvaluationService} from "./services/scheme-evaluation.service";
+import {Grid} from "./models/grid.model";
+import {AnalyticalEvaluationService} from "./services/analytical-evaluation.service";
 
 const getInitialModel: () => InitModel = () => {
 	const
 		l = 4,
-		L = 4,
+		L = 2,
 		lambda = 2,
-		c = 1e14; // 299.792458e12,
+		c = 1e14, // 299.792458e12,
+		mode = "slider",
+		by = "z",
+		I = 100,
+		K = 100,
+		epsilon = 1e-3;
 
 	return {
 		l,
@@ -18,12 +23,12 @@ const getInitialModel: () => InitModel = () => {
 		lambda,
 		T: lambda / c, // 1.76e-14
 
-		mode: "slider",
-		gridConfig: {
-			I: 100,
-			K: 100,
-			by: "z"
-		}
+		mode,
+		by,
+
+		I,
+		K,
+		epsilon
 	}
 };
 
@@ -39,16 +44,19 @@ const getInitialModel: () => InitModel = () => {
 			<init-plot-data [(model)]="model">
 			</init-plot-data>
 
-			<plot [grid]="grid" [mode]="model.mode">
+			<plot [grids]="{scheme: scheme, tabFn: tabFn}"
+				  [mode]="model.mode">
 			</plot>
 		</main>
 	`
 })
 export class AppComponent {
 
-	grid: Grid;
+	scheme: Grid;
+	tabFn: Grid;
 
-	constructor(private evalService: EvaluationService) {
+	constructor(private schemeService: SchemeEvaluationService,
+				private tabFnService: AnalyticalEvaluationService) {
 		this.model = getInitialModel();
 	}
 
@@ -60,15 +68,11 @@ export class AppComponent {
 
 	set model(model: InitModel) {
 		this._model = model;
-		this.resolveTimeDensity(model);
-		this.grid = this.evalService.evaluate(model);
+		this.evaluate();
 	}
 
-	/**
-	 * based on assumption that TcI <= KL
-	 */
-	resolveTimeDensity(model: InitModel): void {
-		model.gridConfig.K = ceil(model.T * model.c * model.gridConfig.I / model.L);
+	private async evaluate() {
+		this.scheme = await this.schemeService.evaluate(this.model);
+		this.tabFn = await this.tabFnService.evaluate(this.model);
 	}
-
 }
