@@ -53,7 +53,7 @@ export class AnalyticalEvaluationService extends AbstractEvaluationService {
 		return N;
 	}
 
-	private Ey = (z: number, x: number, t: number, n: number) => (this.U(z, t, n) + this.Teta(z, t)) * sin(pi * x / this.data.l);
+	private Ey = (z: number, x: number, t: number, n: number) => (this.U(z, t, n) + this.Teta(z, t)) * sin(pi * x);
 
 	private U = (z: number, t: number, n: number) => {
 		let series: number = 0;
@@ -74,11 +74,11 @@ export class AnalyticalEvaluationService extends AbstractEvaluationService {
 
 	private omegaN = (n: number) => (pi * this.data.c * n) / this.data.L;
 
-	private omegaTop = () => (pi * this.data.c) / this.data.l;
+	private omegaTop = () => (this.data.c) / (pi * this.data.l ** 2);
 
 	private gammaN = (n: number) => sqrt(this.omegaTop() ** 2 + this.omegaN(n) ** 2);
 
 	private findEy(z: number, t: number, N: number) {
-		return this.Ey(z, this.data.l / 2, t, N);
+		return this.Ey(z, 1 / 2, t, N);
 	}
 }
