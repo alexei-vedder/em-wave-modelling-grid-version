@@ -1,6 +1,7 @@
 import {Component, Input} from '@angular/core';
 import {floor, random, range, round} from 'mathjs';
 import {Grid} from "../models/grid.model";
+import {Mode} from "../models/mode.model";
 
 
 @Component({
@@ -24,16 +25,18 @@ export class PlotComponent {
 	config;
 
 	@Input()
-	mode: "slider" | "frames" = "slider";
+	mode: Mode = Mode.slider;
 
 	private scheme: Grid;
 	private tabFn: Grid;
+	private extraSchemes: Grid[];
 
 	@Input()
-	set grids(value: { scheme: Grid, tabFn: Grid }) {
-		if (value) {
+	set grids(value: { scheme: Grid, tabFn: Grid, extraSchemes: Grid[] }) {
+		if (value.scheme) {
 			this.scheme = value.scheme;
 			this.tabFn = value.tabFn;
+			this.extraSchemes = value.extraSchemes;
 			this.buildPlot();
 		}
 	}
@@ -70,10 +73,30 @@ export class PlotComponent {
 			}
 		}];
 
-		if (this.tabFn && this.mode === "slider") {
+		if (this.mode === Mode.convergence) {
+			data[0].name += ` (I = ${this.scheme.range[this.scheme.by].length - 1})`;
+			data[0].y = this.scheme.values[this.scheme.values.length - 1];
+
+			for (let scheme of this.extraSchemes) {
+				data.push({
+					x: scheme.range[scheme.by],
+					y: scheme.values[scheme.values.length - 1],
+					mode: 'lines',
+					type: 'scatter',
+					name: `u(zi, tk) (I = ${scheme.range[scheme.by].length})`,
+					line: {
+						color: "",
+						width: 2
+					}
+				})
+
+			}
+		}
+
+		if (this.tabFn && (this.mode === Mode.slider || this.mode === Mode.convergence)) {
 			data.push({
 				x: this.tabFn.range[this.scheme.by],
-				y: this.tabFn.values[0],
+				y: this.mode === Mode.slider ? this.tabFn.values[0] : this.tabFn.values[this.tabFn.range[this.tabFn.by].length - 1],
 				mode: 'lines',
 				type: 'scatter',
 				name: `u(z, t)`,
@@ -84,7 +107,7 @@ export class PlotComponent {
 			})
 		}
 
-		if (this.mode === "frames") {
+		if (this.mode === Mode.frames) {
 			const framesTotal = 5
 
 			for (let i = 1; i < framesTotal; ++i) {
@@ -98,7 +121,6 @@ export class PlotComponent {
 
 			data[0].name += ` (${sliderBy} = ${this.scheme.range[sliderBy][0].toPrecision(2)})`
 		}
-
 
 
 		if (this.scheme.by === "z") {
@@ -147,7 +169,7 @@ export class PlotComponent {
 			title: "",
 		};
 
-		if (this.mode === "slider") {
+		if (this.mode === Mode.slider) {
 			Object.assign(this.layout, {
 				sliders: [{
 					currentvalue: {
@@ -192,11 +214,14 @@ export class PlotComponent {
 	}
 
 	private buildFrames() {
-		const rangeBy = this.scheme.by === "z" ? "t" : "z";
-		const rangeIndexes = range(0, this.scheme.range[rangeBy].length).toArray() as number[];
+		if (this.mode === Mode.slider) {
+			const rangeBy = this.scheme.by === "z" ? "t" : "z";
+			const rangeIndexes = range(0, this.scheme.range[rangeBy].length).toArray() as number[];
 
-		if (this.mode === "slider") {
-			this.frames = this.generate2dFrames(rangeIndexes, [a => this.scheme.values[a], b => this.tabFn.values[b]]);
+			this.frames = this.generate2dFrames(rangeIndexes, [
+				a => this.scheme.values[a],
+				b => this.tabFn.values[b]
+			]);
 		}
 	}
 

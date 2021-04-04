@@ -25,11 +25,13 @@ export class AnalyticalEvaluationService extends AbstractEvaluationService {
 			}
 		);
 
+		const N = this.findIterationNum();
+
 		const {min: minValue, max: maxValue} = tabFn.valueConstraints;
 
 		for (let k = 0; k < tabFn.range.t.length; ++k) {
 			for (let i = 0; i < tabFn.range.z.length; ++i) {
-				const value = this.findEy(tabFn.range.z[i], tabFn.range.t[k]);
+				const value = this.findEy(tabFn.range.z[i], tabFn.range.t[k], N);
 				tabFn.values[i][k] = value // < minValue ? minValue : maxValue < value ? maxValue : value;
 			}
 		}
@@ -46,7 +48,9 @@ export class AnalyticalEvaluationService extends AbstractEvaluationService {
 		let a1 = this.omega() ** 2 - this.omegaTop() ** 2,
 			a2 = (this.data.L ** 2),
 			b1 = this.data.epsilon * (pi ** 3) * (this.data.c ** 2);
-		return ceil(sqrt(a1 * a2 / b1) - 1);
+		const N = ceil(sqrt(a1 * a2 / b1) - 1);
+		console.log("N = ", N);
+		return N;
 	}
 
 	private Ey = (z: number, x: number, t: number, n: number) => (this.U(z, t, n) + this.Teta(z, t)) * sin(pi * x / this.data.l);
@@ -74,5 +78,7 @@ export class AnalyticalEvaluationService extends AbstractEvaluationService {
 
 	private gammaN = (n: number) => sqrt(this.omegaTop() ** 2 + this.omegaN(n) ** 2);
 
-	private findEy = (z: number, t: number) => this.Ey(z, this.data.l / 2, t, this.findIterationNum());
+	private findEy(z: number, t: number, N: number) {
+		return this.Ey(z, this.data.l / 2, t, N);
+	}
 }

@@ -1,3 +1,5 @@
+import {Mode} from "./mode.model";
+
 export interface InitModel {
 
 	l: number;
@@ -12,7 +14,7 @@ export interface InitModel {
 	/** light speed in mkm */
 	c: number;
 
-	mode: "frames" | "slider";
+	mode: Mode;
 
 	by: "z" | "t";
 

@@ -3,6 +3,8 @@ import {InitModel} from "./models/init-model.model";
 import {SchemeEvaluationService} from "./services/scheme-evaluation.service";
 import {Grid} from "./models/grid.model";
 import {AnalyticalEvaluationService} from "./services/analytical-evaluation.service";
+import {Mode} from "./models/mode.model";
+import {ceil, round} from "mathjs";
 
 const getInitialModel: () => InitModel = () => {
 	const
@@ -10,7 +12,7 @@ const getInitialModel: () => InitModel = () => {
 		L = 2,
 		lambda = 2,
 		c = 1e14, // 299.792458e12,
-		mode = "slider",
+		mode = Mode.slider,
 		by = "z",
 		I = 100,
 		K = 100,
@@ -44,7 +46,7 @@ const getInitialModel: () => InitModel = () => {
 			<init-plot-data [(model)]="model">
 			</init-plot-data>
 
-			<plot [grids]="{scheme: scheme, tabFn: tabFn}"
+			<plot [grids]="{scheme: scheme, tabFn: tabFn, extraSchemes: extraSchemes}"
 				  [mode]="model.mode">
 			</plot>
 		</main>
@@ -54,6 +56,7 @@ export class AppComponent {
 
 	scheme: Grid;
 	tabFn: Grid;
+	extraSchemes: Grid[];
 
 	constructor(private schemeService: SchemeEvaluationService,
 				private tabFnService: AnalyticalEvaluationService) {
@@ -68,11 +71,32 @@ export class AppComponent {
 
 	set model(model: InitModel) {
 		this._model = model;
+		this.resolveTimeDensity(model);
+		if (model.mode === Mode.convergence) {
+			this.evaluateExtraSchemes()
+		}
 		this.evaluate();
 	}
 
 	private async evaluate() {
 		this.scheme = await this.schemeService.evaluate(this.model);
 		this.tabFn = await this.tabFnService.evaluate(this.model);
+	}
+
+	private async evaluateExtraSchemes() {
+		this.extraSchemes = [];
+		for (let i = 2; i <= 8; i *= 2) {
+			const model = {...this.model};
+			model.I = round(this.model.I / i);
+			this.resolveTimeDensity(model);
+			this.extraSchemes.push(await this.schemeService.evaluate(model));
+		}
+	}
+
+	/**
+	 * based on assumption that TcI <= KL
+	 */
+	private resolveTimeDensity(model: InitModel): void {
+		model.K = ceil(model.T * model.c * model.I / model.L);
 	}
 }

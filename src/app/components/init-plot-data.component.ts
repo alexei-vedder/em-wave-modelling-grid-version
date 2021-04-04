@@ -1,6 +1,6 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {InitModel} from "../models/init-model.model";
-import {ceil} from "mathjs";
+import {Mode} from "../models/mode.model";
 
 
 @Component({
@@ -18,6 +18,9 @@ import {ceil} from "mathjs";
 					<number-input [value]="model.T" (valueChange)="model.T = $event"
 								  [step]="1e-14"
 								  [text]="'T (s)'"></number-input>
+					<number-input [value]="model.epsilon" (valueChange)="model.epsilon = $event"
+								  [step]="1e-3"
+								  [text]="'Epsilon'"></number-input>
 					<radio-group-field [items]="plotVariableOptions"
 									   [text]="'Plot variable'"
 									   [value]="plotVariableOptions[0]" (valueChange)="model.by = $event.id"></radio-group-field>
@@ -57,12 +60,16 @@ export class InitPlotDataComponent {
 
 	plotModeOptions = [
 		{
-			id: "slider",
+			id: Mode.slider,
 			text: "slider"
 		},
 		{
-			id: "frames",
+			id: Mode.frames,
 			text: "frames"
+		},
+		{
+			id: Mode.convergence,
+			text: "convergence"
 		}
 	];
 
@@ -88,16 +95,7 @@ export class InitPlotDataComponent {
 	}
 
 	buildPlot() {
-		this.resolveTimeDensity(this._model)
 		this.modelChange.emit(this._model);
-	}
-
-
-	/**
-	 * based on assumption that TcI <= KL
-	 */
-	private resolveTimeDensity(model: InitModel): void {
-		model.K = ceil(model.T * model.c * model.I / model.L);
 	}
 
 }
