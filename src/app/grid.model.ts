@@ -1,8 +1,9 @@
 export interface Grid {
 	values: number[][];
-	// TODO refactor zRange and tRange into range: {z: [], t: []}
-	zRange: number[];
-	tRange: number[];
+	range: {
+		z: number[];
+		t: number[];
+	}
 	hz: number;
 	ht: number;
 	valueConstraints: {

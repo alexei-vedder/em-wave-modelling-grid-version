@@ -59,7 +59,7 @@ export class PlotComponent {
 	private buildPlotData(borders) {
 
 		const data = [{
-			x: this.grid.zRange,
+			x: this.grid.range[this.grid.by],
 			y: this.grid.values[0],
 			mode: 'lines',
 			type: 'scatter',
@@ -71,17 +71,15 @@ export class PlotComponent {
 		}];
 
 		if (this.mode === "frames") {
-			const framesTotal = 5;
+			const framesTotal = 5,
+				sliderBy = this.grid.by === "z" ? "t" : "z";
+
 			for (let i = 1; i < framesTotal; ++i) {
 				const frame = JSON.parse(JSON.stringify(data[0]));
 				const valueIndex = floor(i * this.grid.values.length / (framesTotal - 1)) - 1;
 				frame.y = this.grid.values[valueIndex];
 				frame.line.color = ""; // this.getRandomColor();
-				if (this.grid.by === "z") {
-					frame.name += ` (t = ${this.grid.tRange[valueIndex].toPrecision(2)})`
-				} else if (this.grid.by === "t") {
-					frame.name += ` (z = ${this.grid.zRange[valueIndex].toPrecision(2)})`
-				}
+				frame.name += ` (${sliderBy} = ${this.grid.range[sliderBy][valueIndex].toPrecision(2)})`
 				data.push(frame);
 			}
 		}
@@ -105,25 +103,14 @@ export class PlotComponent {
 
 	private buildLayout(borders) {
 
-		let steps, rangeIndexes, sliderPrefix, frameDuration;
+		const sliderBy = this.grid.by === "z" ? "t" : "z",
+			rangeIndexes = range(0, this.grid.range[sliderBy].length).toArray() as number[],
+			frameDuration = 30 * 100 / this.grid.range[sliderBy].length;
 
-		if (this.grid.by === "z") {
-			sliderPrefix = "t";
-			frameDuration = 30 * 100 / this.grid.tRange.length;
-			rangeIndexes = range(0, this.grid.tRange.length).toArray();
-			steps = this.generateSliderSteps(
-				rangeIndexes,
-				this.grid.tRange.map(value => value.toPrecision(2))
-			);
-		} else if (this.grid.by === "t") {
-			sliderPrefix = "z";
-			frameDuration = 30 * 100 / this.grid.zRange.length;
-			rangeIndexes = range(0, this.grid.zRange.length).toArray();
-			steps = this.generateSliderSteps(
-				rangeIndexes,
-				this.grid.zRange.map(value => value.toPrecision(2))
-			)
-		}
+		const steps = this.generateSliderSteps(
+			rangeIndexes,
+			this.grid.range[sliderBy].map(value => value.toPrecision(2))
+		);
 
 		this.layout = {
 			xaxis: {
@@ -148,7 +135,7 @@ export class PlotComponent {
 				sliders: [{
 					currentvalue: {
 						xanchor: "left",
-						prefix: `${sliderPrefix} = `
+						prefix: `${sliderBy} = `
 					},
 					transition: {
 						duration: 100
@@ -188,14 +175,8 @@ export class PlotComponent {
 	}
 
 	private buildFrames() {
-
-		let rangeIndexes;
-
-		if (this.grid.by === "z") {
-			rangeIndexes = range(0, this.grid.tRange.length).toArray();
-		} else if (this.grid.by === "t") {
-			rangeIndexes = range(0, this.grid.zRange.length).toArray();
-		}
+		const rangeBy = this.grid.by === "z" ? "t" : "z";
+		const rangeIndexes = range(0, this.grid.range[rangeBy].length).toArray() as number[];
 
 		if (this.mode === "slider") {
 			this.frames = this.generate2dFrames(rangeIndexes, a => this.grid.values[a]);
@@ -205,9 +186,9 @@ export class PlotComponent {
 	private getPlotBorders() {
 		return {
 			top: this.grid.valueConstraints.max,
-			right: this.grid.zRange[this.grid.zRange.length - 1],
+			right: this.grid.range[this.grid.by][this.grid.range[this.grid.by].length - 1],
 			bottom: this.grid.valueConstraints.min,
-			left: this.grid.zRange[0]
+			left: this.grid.range[this.grid.by][0]
 		}
 	}
 

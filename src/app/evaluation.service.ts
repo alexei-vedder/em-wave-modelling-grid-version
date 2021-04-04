@@ -13,8 +13,10 @@ export class EvaluationService {
 			.map(() => new Array(tRange.length).fill(NaN));
 		return {
 			values,
-			zRange,
-			tRange,
+			range: {
+				z: zRange,
+				t: tRange
+			},
 			hz: (to.z - from.z) / (I),
 			ht: (to.t - from.t) / (K),
 			valueConstraints,
