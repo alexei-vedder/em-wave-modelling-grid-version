@@ -33,7 +33,7 @@ export class PlotComponent {
 
 	@Input()
 	set grids(value: { scheme: Grid, tabFn: Grid, extraSchemes: Grid[] }) {
-		if (value.scheme) {
+		if (value) {
 			this.scheme = value.scheme;
 			this.tabFn = value.tabFn;
 			this.extraSchemes = value.extraSchemes;

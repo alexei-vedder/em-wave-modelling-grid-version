@@ -46,7 +46,7 @@ const getInitialModel: () => InitModel = () => {
 			<init-plot-data [(model)]="model">
 			</init-plot-data>
 
-			<plot [grids]="{scheme: scheme, tabFn: tabFn, extraSchemes: extraSchemes}"
+			<plot [grids]="grids"
 				  [mode]="model.mode">
 			</plot>
 		</main>
@@ -54,9 +54,7 @@ const getInitialModel: () => InitModel = () => {
 })
 export class AppComponent {
 
-	scheme: Grid;
-	tabFn: Grid;
-	extraSchemes: Grid[];
+	grids: { scheme: Grid, tabFn: Grid, extraSchemes: Grid[] };
 
 	constructor(private schemeService: SchemeEvaluationService,
 				private tabFnService: AnalyticalEvaluationService) {
@@ -71,25 +69,28 @@ export class AppComponent {
 
 	set model(model: InitModel) {
 		this._model = model;
-		this.resolveTimeDensity(model);
-		if (model.mode === Mode.convergence) {
-			this.evaluateExtraSchemes()
-		}
 		this.evaluate();
 	}
 
 	private async evaluate() {
-		this.scheme = await this.schemeService.evaluate(this.model);
-		this.tabFn = await this.tabFnService.evaluate(this.model);
-	}
+		this.resolveTimeDensity(this.model);
+		const scheme = await this.schemeService.evaluate(this.model);
+		const tabFn = await this.tabFnService.evaluate(this.model);
+		const extraSchemes = [];
 
-	private async evaluateExtraSchemes() {
-		this.extraSchemes = [];
-		for (let i = 2; i <= 8; i *= 2) {
-			const model = {...this.model};
-			model.I = round(this.model.I / i);
-			this.resolveTimeDensity(model);
-			this.extraSchemes.push(await this.schemeService.evaluate(model));
+		if (this.model.mode === Mode.convergence) {
+			for (let i = 2; i <= 8; i *= 2) {
+				const model = {...this.model};
+				model.I = round(this.model.I / i);
+				this.resolveTimeDensity(model);
+				extraSchemes.push(await this.schemeService.evaluate(model));
+			}
+		}
+
+		this.grids = {
+			scheme,
+			tabFn,
+			extraSchemes
 		}
 	}
 
