@@ -1,5 +1,5 @@
 import {Component, Input} from '@angular/core';
-import {floor, range} from 'mathjs';
+import {floor, random, range, round} from 'mathjs';
 import {Grid} from "./grid.model";
 
 
@@ -72,15 +72,15 @@ export class PlotComponent {
 
 		if (this.mode === "frames") {
 			const framesTotal = 5;
-			// TODO random color for each curve
 			for (let i = 1; i < framesTotal; ++i) {
-				const frame = {...data[0]};
+				const frame = JSON.parse(JSON.stringify(data[0]));
 				const valueIndex = floor(i * this.grid.values.length / (framesTotal - 1)) - 1;
 				frame.y = this.grid.values[valueIndex];
+				frame.line.color = ""; // this.getRandomColor();
 				if (this.grid.by === "z") {
-					frame.name += ` (t = ${this.grid.tRange[valueIndex]})`
+					frame.name += ` (t = ${this.grid.tRange[valueIndex].toPrecision(2)})`
 				} else if (this.grid.by === "t") {
-					frame.name += ` (z = ${this.grid.zRange[valueIndex]})`
+					frame.name += ` (z = ${this.grid.zRange[valueIndex].toPrecision(2)})`
 				}
 				data.push(frame);
 			}
@@ -161,11 +161,14 @@ export class PlotComponent {
 				updatemenus: [{
 					y: -0.7,
 					yanchor: 'top',
-					xanchor: 'right',
+					xanchor: 'left',
 					showactive: false,
 					direction: 'left',
 					type: 'buttons',
-					pad: {t: -55, r: -580},
+					pad: {
+						t: -55,
+						l: 580
+					},
 					buttons: [{
 						method: 'animate',
 						args: [null, {
@@ -206,6 +209,11 @@ export class PlotComponent {
 			bottom: this.grid.valueConstraints.min,
 			left: this.grid.zRange[0]
 		}
+	}
+
+	private getRandomColor(): string {
+		const getRandomColorComponent = () => round(random(255));
+		return `rgb(${getRandomColorComponent()},${getRandomColorComponent()},${getRandomColorComponent()})`
 	}
 
 	/**

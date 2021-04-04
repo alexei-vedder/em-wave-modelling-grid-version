@@ -6,7 +6,7 @@ import {Grid} from "./grid.model";
 
 const getInitialModel: () => InitModel = () => {
 	const
-		l = 10,
+		l = 4,
 		L = 4,
 		lambda = 2,
 		c = 1e14; // 299.792458e12,
