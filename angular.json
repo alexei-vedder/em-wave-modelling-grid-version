@@ -56,7 +56,8 @@
 						],
 						"scripts": [
 							"node_modules/plotly.js/dist/plotly.min.js"
-						]
+						],
+						"webWorkerTsConfig": "tsconfig.worker.json"
 					},
 					"configurations": {
 						"production": {

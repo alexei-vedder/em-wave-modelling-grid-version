@@ -8,9 +8,7 @@ import {InitPlotDataComponent} from "./components/init-plot-data.component";
 import {PlotComponent} from "./components/plot.component";
 
 import {PlotlyViaWindowModule} from 'angular-plotly.js';
-import {SchemeEvaluationService} from "./services/scheme-evaluation.service";
 import {RadioGroupFieldComponent} from './components/radio-group-field.component';
-import {AnalyticalEvaluationService} from "./services/analytical-evaluation.service";
 
 
 @NgModule({
@@ -26,10 +24,7 @@ import {AnalyticalEvaluationService} from "./services/analytical-evaluation.serv
 		FormsModule,
 		PlotlyViaWindowModule
 	],
-	providers: [
-		SchemeEvaluationService,
-		AnalyticalEvaluationService
-	],
+	providers: [],
 	bootstrap: [AppComponent]
 })
 export class AppModule {

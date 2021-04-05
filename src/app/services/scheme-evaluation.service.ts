@@ -1,10 +1,8 @@
-import {Injectable} from '@angular/core';
 import {pi, sin, square, transpose} from 'mathjs';
 import {InitModel} from "../models/init-model.model";
 import {Grid} from "../models/grid.model";
 import {AbstractEvaluationService} from "./abstract-evaluation.service";
 
-@Injectable()
 export class SchemeEvaluationService extends AbstractEvaluationService {
 
 	async evaluate(model: InitModel): Promise<Grid> {

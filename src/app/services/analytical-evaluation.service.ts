@@ -1,10 +1,8 @@
-import {Injectable} from '@angular/core';
 import {ceil, pi, sin, sqrt, transpose} from "mathjs";
 import {Grid} from "../models/grid.model";
 import {InitModel} from "../models/init-model.model";
 import {AbstractEvaluationService} from "./abstract-evaluation.service";
 
-@Injectable()
 export class AnalyticalEvaluationService extends AbstractEvaluationService {
 
 	private data: InitModel;
@@ -49,7 +47,7 @@ export class AnalyticalEvaluationService extends AbstractEvaluationService {
 			a2 = (this.data.L ** 2),
 			b1 = this.data.epsilon * (pi ** 3) * (this.data.c ** 2);
 		const N = ceil(sqrt(a1 * a2 / b1) - 1);
-		console.log("N = ", N);
+		console.log("N =", N);
 		return N;
 	}
 
