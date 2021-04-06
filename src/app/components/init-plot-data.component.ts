@@ -1,6 +1,6 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {InitModel} from "../models/init-model.model";
-import {Mode} from "../models/mode.model";
+import {Mode} from "../models/mode.enum";
 
 
 @Component({

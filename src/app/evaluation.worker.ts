@@ -2,7 +2,7 @@
 
 
 import {SchemeEvaluationService} from "./services/scheme-evaluation.service";
-import {Mode} from "./models/mode.model";
+import {Mode} from "./models/mode.enum";
 import {ceil, round} from "mathjs";
 import {InitModel} from "./models/init-model.model";
 import {AnalyticalEvaluationService} from "./services/analytical-evaluation.service";

@@ -1,4 +1,4 @@
-import {Mode} from "./mode.model";
+import {Mode} from "./mode.enum";
 
 export interface InitModel {
 

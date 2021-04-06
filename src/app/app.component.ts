@@ -1,33 +1,25 @@
 import {Component, OnInit} from '@angular/core';
 import {InitModel} from "./models/init-model.model";
 import {Grid} from "./models/grid.model";
-import {Mode} from "./models/mode.model";
+import {Mode} from "./models/mode.enum";
 
 const getInitialModel: () => InitModel = () => {
-	const
-		l = 4,
-		L = 2,
-		lambda = 2,
-		c = 1e14, // 299.792458e12,
-		mode = Mode.slider,
-		by = "z",
-		I = 100,
-		K = 100,
-		epsilon = 1e-3;
+	const lambda = 2,
+		c = 1e14 // 299.792458e12
 
 	return {
-		l,
-		L,
+		l: 4,
+		L: 2,
 		c,
 		lambda,
 		T: lambda / c, // 1.76e-14
 
-		mode,
-		by,
+		mode: Mode.slider,
+		by: "z",
 
-		I,
-		K,
-		epsilon
+		I: 100,
+		K: 100,
+		epsilon: 1e-3
 	}
 };
 
@@ -81,7 +73,6 @@ export class AppComponent implements OnInit {
 		} else {
 			this.workerNotSupported = true;
 		}
-
 	}
 
 	private evaluate() {

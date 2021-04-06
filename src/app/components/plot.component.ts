@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {floor, random, range, round} from 'mathjs';
 import {Grid} from "../models/grid.model";
-import {Mode} from "../models/mode.model";
+import {Mode} from "../models/mode.enum";
 import {zip} from "rxjs";
 import {fromPromise} from "rxjs/internal-compatibility";
 import {animate, style, transition, trigger} from "@angular/animations";
