@@ -9,6 +9,8 @@ import {PlotComponent} from "./components/plot.component";
 
 import {PlotlyViaWindowModule} from 'angular-plotly.js';
 import {RadioGroupFieldComponent} from './components/radio-group-field.component';
+import {SpinnerComponent} from './components/spinner.component';
+import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 
 
 @NgModule({
@@ -18,9 +20,11 @@ import {RadioGroupFieldComponent} from './components/radio-group-field.component
 		InitPlotDataComponent,
 		PlotComponent,
 		RadioGroupFieldComponent,
+		SpinnerComponent,
 	],
 	imports: [
 		BrowserModule,
+		BrowserAnimationsModule,
 		FormsModule,
 		PlotlyViaWindowModule
 	],

@@ -44,24 +44,19 @@ const getInitialModel: () => InitModel = () => {
 			</init-plot-data>
 
 			<plot [grids]="grids"
-				  [mode]="model.mode">
+				  [mode]="model.mode"
+				  (initialized)="loading = !$event">
 			</plot>
 		</main>
+
+		<spinner [enabled]="loading"></spinner>
 	`
 })
 export class AppComponent implements OnInit {
 
+	loading: boolean = false;
 	grids: { scheme: Grid, tabFn: Grid, extraSchemes: Grid[] };
-	private worker;
-
-	ngOnInit() {
-		this.worker = new Worker("./evaluation.worker", {type: "module"});
-		this.worker.onmessage = ({data}) => {
-			console.log("message from worker", data);
-			this.grids = data;
-		};
-		this.model = getInitialModel();
-	}
+	private worker: Worker;
 
 	private _model: InitModel;
 
@@ -74,7 +69,19 @@ export class AppComponent implements OnInit {
 		this.evaluate();
 	}
 
+	ngOnInit() {
+		this.worker = new Worker("./evaluation.worker", {type: "module"});
+		this.worker.onmessage = this.onEvaluationDone.bind(this);
+		this.model = getInitialModel();
+	}
+
 	private evaluate() {
+		this.loading = true;
 		this.worker.postMessage([this.model]);
+	}
+
+	private onEvaluationDone({data}) {
+		console.log("message from worker", data);
+		this.grids = data;
 	}
 }

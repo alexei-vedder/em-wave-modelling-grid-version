@@ -1,0 +1,30 @@
+@keyframes spinner__border {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+.spinner {
+	&__inner {
+		display: flex;
+		position: fixed;
+		left: 0;
+		right: 0;
+		top: 0;
+		bottom: 0;
+		background: rgba(0, 0, 0, 0.3);
+		align-items: center;
+		justify-content: center;
+	}
+
+	&__border {
+		display: inline-block;
+		width: 2rem;
+		height: 2rem;
+		vertical-align: text-bottom;
+		border: 0.25em solid;
+		border-right-color: transparent;
+		border-radius: 50%;
+		animation: 1s linear infinite spinner__border;
+	}
+}

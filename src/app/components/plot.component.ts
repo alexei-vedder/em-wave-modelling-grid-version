@@ -1,32 +1,55 @@
-import {Component, Input} from '@angular/core';
+import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {floor, random, range, round} from 'mathjs';
 import {Grid} from "../models/grid.model";
 import {Mode} from "../models/mode.model";
+import {zip} from "rxjs";
+import {fromPromise} from "rxjs/internal-compatibility";
+import {animate, style, transition, trigger} from "@angular/animations";
+import {Plotly} from "angular-plotly.js/lib/plotly.interface";
 
 
 @Component({
 	selector: 'plot',
+	animations: [
+		trigger(
+			'appearingAnimation',
+			[
+				transition(
+					':enter',
+					[
+						style({ height: 0, opacity: 0 }),
+						animate('0.5s ease-out',
+							style({ height: 500, opacity: 1 }))
+					]
+				)
+			]
+		)
+	],
 	template: `
 		<div class="plot-wrapper">
-			<plotly-plot class="plot"
+			<plotly-plot *ngIf="data && layout"
+						 [@appearingAnimation]
+						 class="plot"
 						 [data]="data"
 						 [layout]="layout"
 						 [config]="config"
-						 [frames]="frames">
+						 [frames]="frames"
+						 (afterPlot)="initialized.emit(true)">
 			</plotly-plot>
 		</div>
 	`
 })
 export class PlotComponent {
 
-	data;
-	layout;
-	frames;
-	config;
+	data: Plotly.Data[];
+	layout: Partial<any>;
+	frames: Partial<Plotly.Config>[];
+	config: Partial<any>;
 
+	@Output()
+	readonly initialized: EventEmitter<boolean> = new EventEmitter<boolean>();
 	@Input()
 	mode: Mode = Mode.slider;
-
 	private scheme: Grid;
 	private tabFn: Grid;
 	private extraSchemes: Grid[];
@@ -41,27 +64,28 @@ export class PlotComponent {
 		}
 	}
 
-	private async buildPlot() {
+	private buildPlot() {
 
 		const borders = this.getPlotBorders();
 
-		this.buildPlotData(borders);
-
-		this.buildLayout(borders);
-
-		this.buildFrames();
-
-		this.config = {
-			scrollZoom: true
-		}
-
+		zip(fromPromise(this.getPlotData(borders)),
+			fromPromise(this.getLayout(borders)),
+			fromPromise(this.getFrames()))
+			.subscribe(([data, layout, frames]) => {
+				this.data = data;
+				this.layout = layout;
+				this.frames = frames;
+				this.config = {
+					scrollZoom: true
+				}
+			});
 	}
 
-	private buildPlotData(borders) {
+	private async getPlotData(borders): Promise<Plotly.Data[]> {
 
 		const sliderBy = this.scheme.by === "z" ? "t" : "z";
 
-		const data = [{
+		const data: any[] = [{
 			x: this.scheme.range[this.scheme.by],
 			y: this.scheme.values[0],
 			mode: 'lines',
@@ -124,7 +148,6 @@ export class PlotComponent {
 
 
 		if (this.scheme.by === "z") {
-			// @ts-ignore
 			data.push({
 				x: [borders.left, borders.left, borders.right, borders.right, borders.left],
 				y: [borders.bottom, borders.top, borders.top, borders.bottom, borders.bottom],
@@ -137,10 +160,10 @@ export class PlotComponent {
 			})
 		}
 
-		this.data = data;
+		return data;
 	}
 
-	private buildLayout(borders) {
+	private async getLayout(borders): Promise<Partial<any>> {
 
 		const sliderBy = this.scheme.by === "z" ? "t" : "z",
 			rangeIndexes = range(0, this.scheme.range[sliderBy].length).toArray() as number[],
@@ -151,7 +174,7 @@ export class PlotComponent {
 			this.scheme.range[sliderBy].map(value => value.toPrecision(2))
 		);
 
-		this.layout = {
+		const layout = {
 			xaxis: {
 				title: `${this.scheme.by}`,
 				range: [
@@ -170,7 +193,7 @@ export class PlotComponent {
 		};
 
 		if (this.mode === Mode.slider) {
-			Object.assign(this.layout, {
+			Object.assign(layout, {
 				sliders: [{
 					currentvalue: {
 						xanchor: "left",
@@ -211,18 +234,22 @@ export class PlotComponent {
 				}]
 			})
 		}
+
+		return layout;
 	}
 
-	private buildFrames() {
+	private async getFrames(): Promise<Partial<Plotly.Config>[]> {
+		let frames;
 		if (this.mode === Mode.slider) {
 			const rangeBy = this.scheme.by === "z" ? "t" : "z";
 			const rangeIndexes = range(0, this.scheme.range[rangeBy].length).toArray() as number[];
 
-			this.frames = this.generate2dFrames(rangeIndexes, [
+			frames = this.generate2dFrames(rangeIndexes, [
 				a => this.scheme.values[a],
 				b => this.tabFn.values[b]
 			]);
 		}
+		return frames;
 	}
 
 	private getPlotBorders() {
@@ -244,7 +271,7 @@ export class PlotComponent {
 	 * @param funcs
 	 *    func example: const wrapperFunc = alpha => return this.x.map(xk => func(xk, alpha))
 	 */
-	private generate2dFrames(args: number[], funcs: ((arg: number) => number[])[]): any[] {
+	private generate2dFrames(args: number[], funcs: ((arg: number) => number[])[]): Partial<Plotly.Config>[] {
 		return args.map(arg => {
 			return {
 				name: arg.toString(),
