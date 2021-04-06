@@ -43,10 +43,13 @@ const getInitialModel: () => InitModel = () => {
 			<init-plot-data [(model)]="model">
 			</init-plot-data>
 
+			<p *ngIf="workerNotSupported" style="color: red">Your browser doesn't support WebWorkers. Cannot build the plot</p>
+
 			<plot [grids]="grids"
 				  [mode]="model.mode"
 				  (initialized)="loading = !$event">
 			</plot>
+
 		</main>
 
 		<spinner [enabled]="loading"></spinner>
@@ -55,6 +58,7 @@ const getInitialModel: () => InitModel = () => {
 export class AppComponent implements OnInit {
 
 	loading: boolean = false;
+	workerNotSupported: boolean = false;
 	grids: { scheme: Grid, tabFn: Grid, extraSchemes: Grid[] };
 	private worker: Worker;
 
@@ -70,9 +74,14 @@ export class AppComponent implements OnInit {
 	}
 
 	ngOnInit() {
-		this.worker = new Worker("./evaluation.worker", {type: "module"});
-		this.worker.onmessage = this.onEvaluationDone.bind(this);
-		this.model = getInitialModel();
+		if (window.Worker) {
+			this.worker = new Worker("./evaluation.worker", {type: "module"});
+			this.worker.onmessage = this.onEvaluationDone.bind(this);
+			this.model = getInitialModel();
+		} else {
+			this.workerNotSupported = true;
+		}
+
 	}
 
 	private evaluate() {

@@ -4,7 +4,7 @@
 	"scripts": {
 		"ng": "ng",
 		"start": "ng serve --port=4455",
-		"build": "ng build",
+		"build": "ng build --prod",
 		"deploy": "firebase deploy",
 		"buildDeploy": "npm run build && npm run deploy"
 	},

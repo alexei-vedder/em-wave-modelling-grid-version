@@ -6,6 +6,7 @@ import {zip} from "rxjs";
 import {fromPromise} from "rxjs/internal-compatibility";
 import {animate, style, transition, trigger} from "@angular/animations";
 import {Plotly} from "angular-plotly.js/lib/plotly.interface";
+import {first} from "rxjs/operators";
 
 
 @Component({
@@ -17,9 +18,9 @@ import {Plotly} from "angular-plotly.js/lib/plotly.interface";
 				transition(
 					':enter',
 					[
-						style({ height: 0, opacity: 0 }),
-						animate('0.5s ease-out',
-							style({ height: 500, opacity: 1 }))
+						style({height: 0, opacity: 0}),
+						animate('1s ease-out',
+							style({height: "100%", opacity: 1}))
 					]
 				)
 			]
@@ -71,6 +72,7 @@ export class PlotComponent {
 		zip(fromPromise(this.getPlotData(borders)),
 			fromPromise(this.getLayout(borders)),
 			fromPromise(this.getFrames()))
+			.pipe(first())
 			.subscribe(([data, layout, frames]) => {
 				this.data = data;
 				this.layout = layout;
@@ -117,10 +119,10 @@ export class PlotComponent {
 			}
 		}
 
-		if (this.tabFn && (this.mode === Mode.slider || this.mode === Mode.convergence)) {
+		if ((this.mode === Mode.slider || this.mode === Mode.convergence)) {
 			data.push({
-				x: this.tabFn.range[this.scheme.by],
-				y: this.mode === Mode.slider ? this.tabFn.values[0] : this.tabFn.values[this.tabFn.range[this.tabFn.by].length - 1],
+				x: this.tabFn.range[this.tabFn.by],
+				y: this.mode === Mode.slider ? this.tabFn.values[0] : this.tabFn.values[this.tabFn.values.length - 1],
 				mode: 'lines',
 				type: 'scatter',
 				name: `u(z, t)`,
@@ -128,7 +130,7 @@ export class PlotComponent {
 					color: "#325ee2",
 					width: 3
 				}
-			})
+			});
 		}
 
 		if (this.mode === Mode.frames) {
