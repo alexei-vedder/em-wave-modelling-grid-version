@@ -24,6 +24,7 @@ export class AnalyticalEvaluationService extends AbstractEvaluationService {
 		);
 
 		const N = this.findIterationNum();
+		tabFn.N = N;
 
 		const {min: minValue, max: maxValue} = tabFn.valueConstraints;
 

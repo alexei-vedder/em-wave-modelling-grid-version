@@ -11,5 +11,7 @@ export interface Grid {
 		max: number;
 	}
 	/** if "z", values[i] is a range by z */
-	by: "z" | "t"
+	by: "z" | "t";
+	/** for analytical solution */
+	N?: number;
 }

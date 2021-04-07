@@ -100,7 +100,7 @@ export class PlotComponent {
 		}];
 
 		if (this.mode === Mode.convergence) {
-			data[0].name += ` (I = ${this.scheme.range[this.scheme.by].length - 1})`;
+			data[0].name += ` (I = ${this.scheme.range[this.scheme.by].length - 1}, K = ${this.scheme.range[sliderBy].length - 1})`;
 			data[0].y = this.scheme.values[this.scheme.values.length - 1];
 
 			for (let scheme of this.extraSchemes) {
@@ -109,7 +109,7 @@ export class PlotComponent {
 					y: scheme.values[scheme.values.length - 1],
 					mode: 'lines',
 					type: 'scatter',
-					name: `u(zi, tk) (I = ${scheme.range[scheme.by].length})`,
+					name: `u(zi, tk) (I = ${scheme.range[scheme.by].length - 1}, K = ${scheme.range[sliderBy].length - 1})`,
 					line: {
 						color: "",
 						width: 2
@@ -125,7 +125,7 @@ export class PlotComponent {
 				y: this.mode === Mode.slider ? this.tabFn.values[0] : this.tabFn.values[this.tabFn.values.length - 1],
 				mode: 'lines',
 				type: 'scatter',
-				name: `u(z, t)`,
+				name: `u(z, t) (N = ${this.tabFn.N})`,
 				line: {
 					color: "#325ee2",
 					width: 3
