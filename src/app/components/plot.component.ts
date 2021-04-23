@@ -173,7 +173,7 @@ export class PlotComponent {
 
 		const steps = this.generateSliderSteps(
 			rangeIndexes,
-			this.scheme.range[sliderBy].map(value => value.toPrecision(2))
+			this.scheme.range[sliderBy].map(value => value.toPrecision(3))
 		);
 
 		const layout = {
@@ -290,7 +290,7 @@ export class PlotComponent {
 	 * @param labels
 	 */
 	private generateSliderSteps(args: number[], labels ?: (string | number)[]): any[] {
-		labels = labels ?? args;
+		labels ??= args;
 		return args.map((arg, index) => {
 			return {
 				label: labels[index].toString(),

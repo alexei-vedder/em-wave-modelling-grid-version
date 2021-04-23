@@ -2,18 +2,14 @@
 	display: flex;
 	flex-flow: column wrap;
 	align-items: center;
-	padding: 0 26px;
+	padding: 0 26px 40px 26px;
 	transition-duration: @transition-duration;
 	border: solid 1px @color-2;
-
-	&:hover {
-		// box-shadow: 0 0 17px 2px @color-2;
-	}
 
 	&-wrapper {
 		display: flex;
 
-		&__triple-block {
+		&__column-block {
 			display: flex;
 			flex-direction: column;
 			margin: 40px;
@@ -23,7 +19,7 @@
 	&__button {
 		.button();
 		width: 150px;
-		margin: 20px 0 40px 0;
+		margin: 20px 0 0 0;
 		font-size: large;
 
 		&:hover {

@@ -19,7 +19,7 @@ const getInitialModel: () => InitModel = () => {
 
 		I: 100,
 		K: 100,
-		epsilon: 1e-3
+		epsilon: 1e-4
 	}
 };
 
