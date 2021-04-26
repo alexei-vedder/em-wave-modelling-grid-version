@@ -1,5 +1,6 @@
 import {InitModel} from "../models/init-model.model";
 import {Grid} from "../models/grid.model";
+import {Matrix, zeros} from "mathjs";
 
 export abstract class AbstractEvaluationService {
 
@@ -8,8 +9,7 @@ export abstract class AbstractEvaluationService {
 	protected createGridTemplate(from: { z, t }, to: { z, t }, I, K, valueConstraints: { min, max }): Grid {
 		const zRange = this.tabulateRange(from.z, to.z, I + 1);
 		const tRange = this.tabulateRange(from.t, to.t, K + 1);
-		const values = new Array(zRange.length).fill(null)
-			.map(() => new Array(tRange.length).fill(NaN));
+		const values = (zeros(zRange.length, tRange.length) as Matrix).toArray() as number[][];
 		return {
 			values,
 			range: {

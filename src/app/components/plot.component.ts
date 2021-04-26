@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
-import {floor, random, range, round} from 'mathjs';
+import {floor, range} from 'mathjs';
 import {Grid} from "../models/grid.model";
 import {Mode} from "../models/mode.enum";
 import {zip} from "rxjs";
@@ -140,7 +140,7 @@ export class PlotComponent {
 				const frame = JSON.parse(JSON.stringify(data[0]));
 				const valueIndex = floor(i * this.scheme.values.length / (framesTotal - 1)) - 1;
 				frame.y = this.scheme.values[valueIndex];
-				frame.line.color = ""; // this.getRandomColor();
+				frame.line.color = "";
 				frame.name += ` (${sliderBy} = ${this.scheme.range[sliderBy][valueIndex].toPrecision(2)})`
 				data.push(frame);
 			}
@@ -261,11 +261,6 @@ export class PlotComponent {
 			bottom: this.scheme.valueConstraints.min,
 			left: this.scheme.range[this.scheme.by][0]
 		}
-	}
-
-	private getRandomColor(): string {
-		const getRandomColorComponent = () => round(random(255));
-		return `rgb(${getRandomColorComponent()},${getRandomColorComponent()},${getRandomColorComponent()})`
 	}
 
 	/**

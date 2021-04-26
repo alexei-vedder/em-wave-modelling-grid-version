@@ -28,10 +28,9 @@ export class SchemeEvaluationService extends AbstractEvaluationService {
 
 		for (let i = 0; i <= I; ++i) {
 			u[i][0] = 0;
-			u[i][1] = 0;
 		}
 
-		for (let k = 2; k <= K; ++k) {
+		for (let k = 1; k <= K; ++k) {
 			u[0][k] = sin(omega * k * ht);
 		}
 
