@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {InitModel} from "../models/init-model.model";
 import {Mode} from "../models/mode.enum";
-import {ceil} from "mathjs";
+import {ceil, pi, sqrt, square} from "mathjs";
 
 
 @Component({
@@ -105,12 +105,11 @@ export class InitPlotDataComponent {
 		this.modelChange.emit(this._model);
 	}
 
-
-	/**
-	 * based on assumption that TcI <= KL
-	 */
 	setStableK() {
-		this.model.K = ceil(this.model.T * this.model.c * this.model.I / this.model.L);
+		const {c, T, I, l, L} = this.model;
+		const p1 = 2 * square(c * T * I) * l;
+		const p2 = pi * c * square(T * L);
+		const p3 = 2 * square(L) * l;
+		this.model.K = ceil(sqrt((p1 - p2) / p3));
 	}
-
 }
